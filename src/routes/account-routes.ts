@@ -1,10 +1,11 @@
 import { Router } from 'express';
-import { accountSummary } from '../controllers/account-controller';
-import { paramsSchemaValidator } from '../middleware/params-schema-validator';
-import { accountSummarySchema } from '../controllers/schemas/account-schemas';
+import { accountStatement, accountSummary } from '../controllers/account-controller';
+import { paramsSchemaValidator, querySchemaValidator } from '../middleware/schema-validator';
+import { accountIdParamSchema, accountStatementQuerySchema } from '../controllers/schemas/account-schemas';
 
 export const accountRoutes = () => {
     const router = Router();
-    router.get('/:accountId/summary', paramsSchemaValidator(accountSummarySchema), accountSummary);
+    router.get('/:accountId/summary', paramsSchemaValidator(accountIdParamSchema), accountStatement);
+    router.get('/:accountId/statement', paramsSchemaValidator(accountIdParamSchema), querySchemaValidator(accountStatementQuerySchema), accountSummary);
     return router;
 };
