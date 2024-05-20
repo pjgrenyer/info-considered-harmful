@@ -5,7 +5,7 @@ import { accountIdParamSchema, accountStatementQuerySchema } from '../controller
 
 export const accountRoutes = () => {
     const router = Router();
-    router.get('/:accountId/summary', paramsSchemaValidator(accountIdParamSchema), accountStatement);
-    router.get('/:accountId/statement', paramsSchemaValidator(accountIdParamSchema), querySchemaValidator(accountStatementQuerySchema), accountSummary);
+    router.get('/:accountId/summary', paramsSchemaValidator(accountIdParamSchema), accountSummary);
+    router.get('/:accountId/statement', paramsSchemaValidator(accountIdParamSchema), querySchemaValidator(accountStatementQuerySchema), accountStatement);
     return router;
 };
