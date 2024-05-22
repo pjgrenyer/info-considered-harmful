@@ -5,6 +5,7 @@ import { healthRoutes } from './routes/health-routes';
 import loggerMiddleware from './middleware/logger';
 import { accountRoutes } from './routes/account-routes';
 
+/* istanbul ignore next */
 const PORT = process.env.PORT ? +process.env.PORT : 3000;
 
 export const initApp = () => {

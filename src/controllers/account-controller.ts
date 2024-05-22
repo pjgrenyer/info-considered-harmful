@@ -20,7 +20,3 @@ export const accountStatement = async (req: Request, res: Response) => {
         details: { ...details, accountNumber: formatAccountNumber(details.accountNumber), sortCode: formatSortCode(details.sortCode) },
     });
 };
-
-export const accountSummary = (req: Request, res: Response) => {
-    return res.status(200).send({});
-};
