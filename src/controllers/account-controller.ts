@@ -1,5 +1,5 @@
 import { Request, Response } from 'express';
-import { accountDetails, acountBalances, authenticate } from '../services/bank-service';
+import { accountDetails, accountBalances, accountTransactions, authenticate } from '../services/bank-service';
 import logger from '../lib/logger';
 import { formatAccountNumber, formatSortCode } from '../lib/formatter';
 
@@ -16,10 +16,13 @@ export const accountStatement = async (req: Request, res: Response) => {
 
     const details = await accountDetails(accessToken, accountId);
 
-    const balances = await acountBalances(accessToken, accountId);
+    const transactions = await accountTransactions(accessToken, accountId);
+
+    const balances = await accountBalances(accessToken, accountId);
 
     return res.status(200).send({
         details: { ...details, accountNumber: formatAccountNumber(details.accountNumber), sortCode: formatSortCode(details.sortCode) },
+        transactions,
         balances,
     });
 };

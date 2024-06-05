@@ -1,4 +1,5 @@
 import axios from 'axios';
+import { DateTime } from 'luxon';
 import logger from '../lib/logger';
 
 const { BANK_API_KEY, BANK_URL } = process.env;
@@ -64,7 +65,41 @@ export const accountDetails = async (
     }
 };
 
-export const acountBalances = async (accessToken: string, accountId: number): Promise<{ cleared: number; pending: number }> => {
+export const accountTransactions = async (
+    accessToken: string,
+    accountId: number
+): Promise<
+    {
+        date: DateTime;
+        description: string;
+        amount: number;
+        pending: boolean;
+    }[]
+> => {
+    try {
+        const url = `${BANK_URL}/account/${accountId}/transaction`;
+        logger.info(`Bank Account Balance URL: ${url}`);
+
+        const response = await axios.get(url, {
+            headers: {
+                Authorization: bearerToken(accessToken),
+            },
+        });
+
+        logger.info(response.data);
+        return response.data.map((transaction: { date: string; description: string; amount: number; pending: boolean }) => ({
+            date: DateTime.fromISO(transaction.date),
+            description: transaction.description,
+            amount: transaction.amount,
+            pending: transaction.pending,
+        }));
+    } catch (error: unknown) {
+        logger.error(`${error}`);
+        throw error;
+    }
+};
+
+export const accountBalances = async (accessToken: string, accountId: number): Promise<{ cleared: number; pending: number }> => {
     try {
         const url = `${BANK_URL}/account/${accountId}/balance`;
         logger.info(`Bank Account Balance URL: ${url}`);

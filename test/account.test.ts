@@ -2,6 +2,7 @@ import request from 'supertest';
 import { initApp } from '../src/app';
 import nock from 'nock';
 import { v4 } from 'uuid';
+import { DateTime } from 'luxon';
 
 describe('account', () => {
     const BANK_URL = process.env.BANK_URL ?? '';
@@ -9,6 +10,8 @@ describe('account', () => {
     const validAccountId = '12345678';
     const accessToken = v4();
     const app = initApp();
+
+    const now = DateTime.now().startOf('day').toISO();
 
     afterEach(() => {
         nock.restore();
@@ -27,6 +30,36 @@ describe('account', () => {
                 sortCode: '123456',
             });
 
+            nock(BANK_URL)
+                .get(`/account/${validAccountId}/transaction`)
+                .matchHeader('Authorization', `Bearer ${accessToken}`)
+                .reply(200, [
+                    {
+                        date: now,
+                        description: 'Amazon',
+                        amount: 500,
+                        pending: false,
+                    },
+                    {
+                        date: now,
+                        description: 'Asda',
+                        amount: 300,
+                        pending: false,
+                    },
+                    {
+                        date: now,
+                        description: 'Boots',
+                        amount: 200,
+                        pending: false,
+                    },
+                    {
+                        date: now,
+                        description: 'B&Q',
+                        amount: 345,
+                        pending: true,
+                    },
+                ]);
+
             nock(BANK_URL).get(`/account/${validAccountId}/balance`).matchHeader('Authorization', `Bearer ${accessToken}`).reply(200, {
                 cleared: 1000,
                 pending: 345,
@@ -44,6 +77,32 @@ describe('account', () => {
                     sortCode: '12-34-56',
                     town: 'London',
                 },
+                transactions: [
+                    {
+                        amount: 500,
+                        date: now,
+                        description: 'Amazon',
+                        pending: false,
+                    },
+                    {
+                        amount: 300,
+                        date: now,
+                        description: 'Asda',
+                        pending: false,
+                    },
+                    {
+                        amount: 200,
+                        date: now,
+                        description: 'Boots',
+                        pending: false,
+                    },
+                    {
+                        amount: 345,
+                        date: now,
+                        description: 'B&Q',
+                        pending: true,
+                    },
+                ],
                 balances: {
                     cleared: 1000,
                     pending: 345,
