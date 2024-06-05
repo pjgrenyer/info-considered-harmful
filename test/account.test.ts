@@ -32,7 +32,6 @@ describe('account', () => {
                 pending: 345,
             });
 
-
             const { status, body } = await request(app).get(`/account/${validAccountId}/statement?year=2024&month=5`).send();
             expect(status).toBe(200);
             expect(body).toEqual({
