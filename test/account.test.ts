@@ -27,6 +27,12 @@ describe('account', () => {
                 sortCode: '123456',
             });
 
+            nock(BANK_URL).get(`/account/${validAccountId}/balance`).matchHeader('Authorization', `Bearer ${accessToken}`).reply(200, {
+                cleared: 1000,
+                pending: 345,
+            });
+
+
             const { status, body } = await request(app).get(`/account/${validAccountId}/statement?year=2024&month=5`).send();
             expect(status).toBe(200);
             expect(body).toEqual({
@@ -38,6 +44,10 @@ describe('account', () => {
                     postcode: 'AB1 2CD',
                     sortCode: '12-34-56',
                     town: 'London',
+                },
+                balances: {
+                    cleared: 1000,
+                    pending: 345,
                 },
             });
         });

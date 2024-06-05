@@ -6,7 +6,7 @@ const { BANK_API_KEY, BANK_URL } = process.env;
 export const authenticate = async (): Promise<{ accessToken: string } | null> => {
     try {
         const url = `${BANK_URL}/authenticate`;
-        logger.info(`Bank Authentiate URL: ${url}`);
+        logger.info(`Bank Authenticate URL: ${url}`);
 
         const response = await axios.get(url, {
             headers: {
@@ -57,6 +57,28 @@ export const accountDetails = async (
             postcode: response.data.postcode,
             accountNumber: response.data.accountNumber,
             sortCode: response.data.sortCode,
+        };
+    } catch (error: unknown) {
+        logger.error(`${error}`);
+        throw error;
+    }
+};
+
+export const acountBalances = async (accessToken: string, accountId: number): Promise<{ cleared: number; pending: number }> => {
+    try {
+        const url = `${BANK_URL}/account/${accountId}/balance`;
+        logger.info(`Bank Account Balance URL: ${url}`);
+
+        const response = await axios.get(url, {
+            headers: {
+                Authorization: bearerToken(accessToken),
+            },
+        });
+
+        logger.info(response.data);
+        return {
+            cleared: response.data.cleared,
+            pending: response.data.pending,
         };
     } catch (error: unknown) {
         logger.error(`${error}`);
