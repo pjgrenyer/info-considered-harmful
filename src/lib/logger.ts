@@ -1,8 +1,15 @@
+import dotenv from 'dotenv';
 import { AsyncLocalStorage } from 'async_hooks';
-
 import { Level, Logger, processors, transports } from 'tripitaka';
-const { context, timestamp, json, human, augment } = processors;
+import { datadogTransport } from 'tripitaka-datadog';
+import { datadogProcessor } from 'tripitaka-datadog';
+
+const { context, timestamp, augment } = processors;
 const { stream } = transports;
+
+if (process.env.NODE_ENV === 'test') {
+    dotenv.config();
+}
 
 const { LOG_LEVEL } = process.env;
 /* istanbul ignore next */
@@ -23,14 +30,19 @@ const localStorage = augment({
 
 const logger = new Logger({
     level: logLevel,
-    processors: [
-        localStorage,
-        context(),
-        timestamp(),
-        /* istanbul ignore next */
-        process.env.NODE_ENV === 'production' ? json() : human(),
+    processors: [localStorage, context(), timestamp(), datadogProcessor()],
+    transports: [
+        datadogTransport({
+            apiKey: `${process.env.DATADOG_API_KEY}`,
+            hostname: 'localhost',
+            service: 'info-considered-harmful',
+            ddsource: 'Paul Grenyer',
+            ddtags: 'info-considered-harmful',
+            intakeRegion: 'eu',
+            threshold: Level.DEBUG,
+        }),
+        stream({ threshold: logLevel }),
     ],
-    transports: [stream({ threshold: logLevel })],
 });
 
 export default logger;
