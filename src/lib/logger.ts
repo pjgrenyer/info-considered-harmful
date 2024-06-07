@@ -7,7 +7,7 @@ import { datadogProcessor } from 'tripitaka-datadog';
 const { context, timestamp, augment } = processors;
 const { stream } = transports;
 
-if (process.env.NODE_ENV === 'test') {
+if (process.env.NODE_ENV !== 'production') {
     dotenv.config();
 }
 
